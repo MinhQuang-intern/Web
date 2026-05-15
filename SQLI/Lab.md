@@ -205,11 +205,11 @@ Kết quả trả về có dạng:
 
 Cách xác định phiên bản của database 
 
-![alt text](image-18.png)
+![alt text](image-33.png)
 
 Cách ghép cột của từng version 
 
-![alt text](image-19.png)
+![alt text](image-34.png)
 
 LAB: SQL injection UNION attack, retrieving multiple values in a single column
 
@@ -217,15 +217,15 @@ Mục tiêu: Thực hiện injection UNION attack để trích xuất tất cả
 
 Đầu tiên ta sẽ xác định số cột của bài bằng cách dùng ORDER BY x 
 
-![alt text](image-20.png)
+![alt text](image-35.png)
 
 => Xác định được là có 2 cột
 
 Dựa vào đây ta xác đinh được rằng chỉ cột thứ 2 có giá trị
 
-![alt text](image-21.png)
+![alt text](image-36.png)
 
-Bây giơ ta cần xác định version của database trong bài này bằng cách thử lần lượt từng payload
+Bây giờ ta cần xác định version của database trong bài này bằng cách thử lần lượt từng payload
 
 ![alt text](image-22.png)
 
