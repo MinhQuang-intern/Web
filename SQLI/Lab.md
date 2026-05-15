@@ -27,15 +27,15 @@ LAB: SQL injection vulnerability in WHERE clause allowing retrieval of hidden da
 
 Mục tiêu là làm xuất hiện các sản phẩm chưa phát hành 
 
-![alt text](images/image.png)
+![alt text](image.png)
 
 - Ta bắt gói tin trong burp và gửi đến repeater 
 
-![alt text](images/image-1.png)
+![alt text](image-1.png)
 
 Ta thử gõ cách test lỗ hổng SQLI bằng các thêm '-- vào đằng sau 
 
-![alt text](images/image-2.png)
+![alt text](image-2.png)
 
 -> Ta nhận thay server trả về 200 OK 
 
@@ -43,7 +43,7 @@ Ta thử gõ cách test lỗ hổng SQLI bằng các thêm '-- vào đằng sau
 
 Ta bypass bằng cách sau 
 
-![alt text](images/image-3.png)
+![alt text](image-3.png)
 
 Bypass: ?category='+OR+1=1--
 
