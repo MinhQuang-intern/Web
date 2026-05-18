@@ -23,7 +23,7 @@
 - Backend xử lý input không an toàn 
 - Không có cơ chế escaping đúng 
 
-LAB: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data
+```LAB: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data```
 
 Mục tiêu là làm xuất hiện các sản phẩm chưa phát hành 
 
@@ -55,7 +55,7 @@ Sau khi dùng dấu ' để đóng lại thì ở đằng sau là  1 mệnh đ�
 
 -------------------------------------------------------------------------------------------
 
-LAB: SQL injection vulnerability allowing login bypass
+```LAB: SQL injection vulnerability allowing login bypass```    
 
 Mục tiêu là tấn công để đăng nhập vào tài khoản administrator
 
@@ -109,7 +109,7 @@ All queries combined using a UNION, INTERSECT or EXCEPT operator must have an eq
 
 -------------------------------------------------------------------------------------------
 
-LAB: SQL injection UNION attack, determining the number of columns returned by the query
+```LAB: SQL injection UNION attack, determining the number of columns returned by the query```
 PRACTITIONER
 
 Mục tiêu: Xác đinh số lượng cột được trả về 
@@ -130,7 +130,7 @@ Thử thêm NULL đến khi nào server trả về 200 OK
 
 -------------------------------------------------------------------------------------------
 
-SQL Injection cheat-sheat:
+```SQL Injection cheat-sheat:```
 
 - On Oracle, mỗi SELECT phải sử dụng FROM và chỉ định 1 table có sẵn.
 
@@ -142,7 +142,7 @@ SQL Injection cheat-sheat:
 
 -------------------------------------------------------------------------------------------
 
-LAB: SQL injection UNION attack, finding a column containing text
+```LAB: SQL injection UNION attack, finding a column containing text```
 
 Mục tiêu: Xác định cột có chứa dữ liệu 
 
@@ -176,7 +176,7 @@ Trong ví dụ này ta có thể truy xuất nội dung của users bằng cách
 
 -------------------------------------------------------------------------------------------
 
-LAB: SQL injection UNION attack, retrieving data from other tables
+```LAB: SQL injection UNION attack, retrieving data from other tables```
 
 ![alt text](image-13.png)
 
@@ -211,7 +211,9 @@ Cách ghép cột của từng version
 
 ![alt text](image-34.png)
 
-LAB: SQL injection UNION attack, retrieving multiple values in a single column
+----------------------------------------------------------------------------------------------------------
+
+```LAB: SQL injection UNION attack, retrieving multiple values in a single column```
 
 Mục tiêu: Thực hiện injection UNION attack để trích xuất tất cả người dùng và mật khẩu, sau đó đăng nhập vào tài khoản của administrator
 
@@ -255,7 +257,7 @@ Cách liệt kê các bảng hiện có trong database và các cột mà các b
 
 -------------------------------------------------------------------------------------------
 
-LAB: SQL injection attack, listing the database contents on non-Oracle databases
+```LAB: SQL injection attack, listing the database contents on non-Oracle databases```
 
 Mục tiêu: Trích xuất dữ liệu để lấy được tài khoản administrator
 
@@ -291,7 +293,7 @@ Ta thấy có 2 cột đáng nghi, giờ ta xem data của 2 cột đó xem có 
 
 -------------------------------------------------------------------------------------------------------------------
 
-Blind SQL Injection 
+```Blind SQL Injection```
 
 Lỗi tấn công SQL injection mù xảy ra khi một ứng dụng dễ bị tấn công SQL Injection, nhưng phản  hồi HTTP của nó không chứa kết quả của truy 
 
@@ -347,7 +349,9 @@ Có tin nhắn trả về "Welcome back" ta xác nhận rằng ký tự đầu t
 
 => Ta cứ tiếp tục như vậy cho đến khi tìm được mật khẩu 
 
-LAB: Blind SQL injection with conditional responses
+--------------------------------------------------------------------------------------------------------
+
+```LAB: Blind SQL injection with conditional responses```
 
 ![alt text](image-37.png)
 
@@ -456,7 +460,7 @@ END FROM Users)='a
 
 -------------------------------------------------------------------------------------------------------------------
 
-LAB: Blind SQL injection with conditional errors
+```LAB: Blind SQL injection with conditional errors```
 
 - Mục tiêu: Cần khi thác lỗ hổng Blind SQL injection để tìm ra password của administrator
 
