@@ -401,6 +401,7 @@ Sau khi thử nhiều số ta đã tìm ra được password có 20 ký tự
 
 Và giờ ta sẽ đi brute force password của administrator bằng cách dùng script:
 
+```python
 import requests
 import string
 
@@ -437,6 +438,7 @@ for i in range(1,21):
         break
 
 print(f"Password is {password}")
+```
 
 -------------------------------------------------------------------------------------------------------------------
 
