@@ -462,7 +462,7 @@ END FROM Users)='a
 
 ```LAB: Blind SQL injection with conditional errors```
 
-- Mục tiêu: Cần khi thác lỗ hổng Blind SQL injection để tìm ra password của administrator
+- Mục tiêu: Cần khai thác lỗ hổng Blind SQL injection để tìm ra password của administrator
 
 - Khi ta thử thêm ' vào đằng sau trường TrackingId thì bên response trả về báo lỗi 
 
@@ -569,6 +569,14 @@ print(f"Password is {password}")
 - Trích xuất dữ liệu thông qua tin nhắn lỗi hiển thị 
 
 ![alt text](image-52.png)
+
+----------------------------------------------------------------------------------------
+
+```LAB: Visible error-based SQL injection```
+
+- Mục tiêu: Cần khi thác lỗ hổng Blind SQL injection để tìm ra password của administrator
+
+
 
 
 
