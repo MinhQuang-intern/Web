@@ -576,16 +576,55 @@ print(f"Password is {password}")
 
 - Mục tiêu: Cần khi thác lỗ hổng Blind SQL injection để tìm ra password của administrator
 
+Khi ta thử chèn ' và đằng sau trường TrackingId thì ta thấy thông báo lỗi trả về như sau 
 
+![alt text](image-53.png)
 
+=> Ta biết được câu query có dạng: ```SQL SELECT * FROM tracking WHERE id = '0Fhv4wPNNEk31yt4''``` và input đang mong muốn là dạng char 
 
+=> Và ta thấy rằng response để chỉ cho ta lỗi ở đâu, lợi dụng điều này ta sẽ trích xuất được dữ liệu 
 
+=> Ta sẽ thử dùng CAST để ép kiểu dữ liệu
 
+```Payload: ' AND CAST((SELECT 1) AS int)-- ```
 
+![alt text](image-54.png)
 
+=> Thông báo lỗi trả về là: đối số của toán tử AND phải là boolean, giờ ta sẽ sửa lại payload sao cho phù hợp 
 
+```Payload: ' AND 1 = CAST((SELECT 1) AS int)--```
 
+![alt text](image-55.png)
 
+=> Lúc này không còn lỗi nữa, điều này xác nhận đây là truy vấn lớp lệ
+
+- Tiếp theo ta sẽ mong muốn làm sao cho response trả về tiết lộ được username 
+
+```Payload: ' AND 1 = CAST((SELECT username FROM users) AS int)--```
+
+![alt text](image-56.png)
+
+- Ta nhận được thông báo rằng câu query quá dài, giờ ta sẽ cắt bớt đi bằng cách xóa parameter của TrackingId đi 
+
+![alt text](image-57.png)
+
+- Bây giờ lại có thông bão lỗi rằng có nhiều hơn 1 hàng trả về, ta chỉ cần thêm LIMIT 1 là được
+
+```Payload: ' AND 1=CAST((SELECT username FROM users LIMIT 1) AS int)--```
+
+![alt text](image-58.png)
+
+=> Ta đã thấy lộ thông tin username là administrator
+
+- Tiếp theo ta sẽ làm cho response tiết lộ ra password
+
+```Payload: ' AND 1=CAST((SELECT password FROM users LIMIT 1) AS int)--```
+
+![alt text](image-59.png)
+
+=> Trích xuất thành công password 
+
+-----------------------------------------------------------------------------------------------
 
 
 
